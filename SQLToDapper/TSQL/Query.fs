@@ -3,6 +3,7 @@
 module Query =
 
     open FSharp.Data
+    open FSharpx.Control
     open System.Data.SqlClient
     open SQLToDapper
 
@@ -43,15 +44,10 @@ module Query =
                 routines
                 |> Array.map (fun x -> x.RoutineID)
 
-            let! routineReturns =
-                routineIDs
-                |> Seq.map (getRoutineReturnType conn)
-                |> Async.Parallel
-
-            let! udts =
-                routineIDs
-                |> Seq.map (getUDTTableColumns conn)
-                |> Async.Parallel
+            let! (routineReturns, udts) =
+                let returnsAsync = routineIDs |> Seq.map (getRoutineReturnType conn) |> Async.Parallel
+                let udtAsync     = routineIDs |> Seq.map (getUDTTableColumns conn)   |> Async.Parallel
+                Async.Parallel (returnsAsync, udtAsync)
 
             return udts
         }
