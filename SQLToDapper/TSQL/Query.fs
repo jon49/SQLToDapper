@@ -49,5 +49,7 @@ module Query =
                 let udtAsync     = routineIDs |> Seq.map (getUDTTableColumns conn)   |> Async.Parallel
                 Async.Parallel (returnsAsync, udtAsync)
 
+
+
             return udts
         }

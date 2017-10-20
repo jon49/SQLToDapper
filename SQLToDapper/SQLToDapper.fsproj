@@ -55,7 +55,6 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="FsDapper.fs" />
     <Compile Include="SQL.fs" />
     <Compile Include="TSQL\TSQL.fs" />
     <Compile Include="TSQL\Query.fs" />
