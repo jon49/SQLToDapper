@@ -58,11 +58,16 @@
     <Compile Include="FsDapper.fs" />
     <Compile Include="SQL.fs" />
     <Compile Include="TSQL\TSQL.fs" />
-    <Compile Include="TSQL\Queries.fs" />
+    <Compile Include="TSQL\Query.fs" />
+    <None Include="TSQL\RoutineReturns.sql" />
+    <None Include="TSQL\RoutinesBySchema.sql" />
+    <None Include="TSQL\UDTTableColumns.sql" />
     <Compile Include="CLR.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
+    <None Include="SQLPlay.sql" />
+    <None Include="SourceDatabase.sql" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Dapper">
