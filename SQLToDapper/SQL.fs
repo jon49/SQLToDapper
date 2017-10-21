@@ -6,7 +6,12 @@ module SQL =
 
     type Length =
         | Max
-        | Int of int
+        | Int of int16
+
+    let asLength =
+        function
+        | -1s -> Max
+        | x -> Int x
 
     type Precision =
         | Zero
@@ -17,6 +22,17 @@ module SQL =
         | Five
         | Six
         | Seven
+
+    let asPrecision x =
+        match x with
+        | 0uy -> Zero
+        | 1uy -> One
+        | 2uy -> Two
+        | 3uy -> Three
+        | 4uy -> Four
+        | 5uy -> Five
+        | 6uy -> Six
+        | _ -> Seven
 
     type SQLDbType =
         | BigInt
@@ -39,7 +55,6 @@ module SQL =
         | SmallDateTime
         | SmallInt
         | SmallMoney
-        | Structured
         | Text
         | Time of Precision
         | Timestamp
@@ -51,37 +66,6 @@ module SQL =
         | Variant
         | Xml
 
-    type UDTColumn =
-        {
-            IsNullable : bool
-            MaxLength : int
-            Name : string
-            Order : int
-            Type : SQLDbType
-        }
-
-    type SimpleParameter =
-        {
-            MaxLength : int
-            Name : string
-            Order : int
-            Type : SQLDbType
-        }
-
-    type SchemaName = SchemaName of string
-    type ObjectName = ObjectName of string
-    type FullObjectName = SchemaName * ObjectName
-
-    type UDT =
-        {
-            UDTColumns : UDTColumn[]
-            Name : FullObjectName
-        }
-
-    type Parameter =
-        | UDT of FullObjectName
-        | SimpleParameter of SimpleParameter
-
     type Column =
         {
             IsNullable : bool
@@ -90,9 +74,43 @@ module SQL =
             Type : SQLDbType
         }
 
+//    type UDTColumn =
+//        {
+//            IsNullable : bool
+//            Name : string
+//            Order : int
+//            Type : SQLDbType
+//        }
+
+    type SimpleParameter =
+        {
+            Name : string
+            Order : int
+            Type : SQLDbType
+        }
+
+    type SchemaName = SchemaName of string
+    type ObjectName = ObjectName of string
+    type FullObjectName = FullObjectName of SchemaName * ObjectName
+
+    type UDT =
+        {
+            UDTColumns : Column seq
+            Name : FullObjectName
+        }
+
+    type Parameter =
+        | UDT of ParameterName : string * FullObjectName
+        | SimpleParameter of SimpleParameter
+
+
+    type ReturnType =
+        | Columns of Column seq
+        | Int
+
     type Routine =
         {
             Name : FullObjectName
             Parameters : Parameter[]
-            Return : Column[]
+            ReturnType : ReturnType
         }

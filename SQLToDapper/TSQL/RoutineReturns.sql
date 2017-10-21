@@ -1,4 +1,4 @@
-﻿--DECLARE @RoutineID int = 12345
+﻿--DECLARE @RoutineID int = 1483152329;
 
 DECLARE @ObjectID int = @RoutineID
 
@@ -56,6 +56,7 @@ SELECT
     , t.is_nullable IsNullable
     , st.[name] ColumnType
     , t.max_length [MaxLength]
+    , t.[precision] [Precision]
 FROM @FirstResult t
 JOIN sys.systypes st ON st.xusertype = t.system_type_id;
 

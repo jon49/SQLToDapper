@@ -79,6 +79,11 @@ SELECT
 FROM @FirstResult t
 JOIN sys.systypes st ON st.xusertype = t.system_type_id;
 
+select DISTINCT t.[name]
+from sys.systypes t
+where t.xtype <> 243
+
+
 SELECT
       t.[name] ParameterName
     , t.parameter_id ParameterOrder

@@ -33,7 +33,7 @@ module CLR =
         | INT -> Int32
         | BIGINT -> Int64
         | SMALLMONEY | MONEY | DECIMAL | NUMERIC -> Decimal
-        | REAL | FLOAT (SQL.Int 24) -> Single
+        | REAL | FLOAT (SQL.Int 24s) -> Single
         | FLOAT _ (*FLOAT or FLOAT 53*) -> Double
         | CHAR x | NCHAR x | VARCHAR x | NVARCHAR x  -> String x
         | TEXT | NTEXT -> String SQL.Max
