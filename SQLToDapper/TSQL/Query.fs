@@ -89,8 +89,8 @@ module Query =
                 let parameters = routineIDs |> Seq.map (getRoutineParameters conn) |> Async.Parallel
                 let returnsAsync  = routineIDs |> Seq.map (getRoutineReturnType conn) |> Async.Parallel
                 Async.Parallel (returnsAsync, parameters)
-            let routineReturns = routineReturns' |> Seq.map (Seq.toArray) |> Seq.toArray
-            let routineParameters = parameters' |> Seq.map (Seq.toArray) |> Seq.toArray
+            let routineReturns = routineReturns' |> Seq.map Seq.toArray |> Seq.toArray
+            let routineParameters = parameters' |> Seq.map Seq.toArray |> Seq.toArray
 
             let! udts' =
                 routineParameters
@@ -151,7 +151,7 @@ module Query =
                                       Type = getSQLDbType (Some x.ColumnType) (asLength x.MaxLength) (asPrecision x.Precision) } )
                             |> ReturnType.Columns
                         
-                    { Name = name
+                    { Name = RoutineName (string x.RoutineID, name)
                       Parameters = parameters
                       ReturnType = returnTypes } )
 

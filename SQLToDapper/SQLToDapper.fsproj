@@ -57,17 +57,17 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="SQL.fs" />
-    <Compile Include="TSQL\TSQL.fs" />
+    <Compile Include="Generator.fs" />
     <Compile Include="TSQL\Query.fs" />
     <None Include="TSQL\RoutineReturns.sql" />
     <None Include="TSQL\RoutinesBySchema.sql" />
     <None Include="TSQL\UDTTableColumns.sql" />
     <None Include="TSQL\RoutineParameters.sql" />
-    <Compile Include="CLR.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
     <None Include="SQLPlay.sql" />
+    <None Include="test.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Control.AsyncSeq">

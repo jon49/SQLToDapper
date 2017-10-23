@@ -105,12 +105,14 @@ module SQL =
 
 
     type ReturnType =
-        | Columns of Column seq
+        | Columns of Column list
         | Int
+
+    type RoutineName = RoutineName of id : string * fullObjectName : FullObjectName
 
     type Routine =
         {
-            Name : FullObjectName
+            Name : RoutineName
             Parameters : Parameter[]
             ReturnType : ReturnType
         }
