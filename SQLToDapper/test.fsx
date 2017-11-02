@@ -1,11 +1,16 @@
 ﻿
 open System.Text
 
-let m = Map.empty<string, StringBuilder>
-let sb = new StringBuilder()
+let m = Map.empty<string, string list>
+let sb = ["Hello, "]
+let sb' =
+    "world" :: sb
 
-let m' = m.Add("1", sb)
+let m' =
+    m.Add("1", sb)
+    |> fun x -> x.Add ("1", sb')
 
-sb.Append("Hello, \n").Append("world")
+m'.Item "1"
+|> List.rev
+|> String.concat ""
 
-(m'.Item "1").ToString()

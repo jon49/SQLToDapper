@@ -57,7 +57,9 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="SQL.fs" />
-    <Compile Include="Generator.fs" />
+    <Compile Include="Template\DapperWrapper.fs" />
+    <Compile Include="Template\Template.fs" />
+    <Compile Include="Template\Generator.fs" />
     <Compile Include="TSQL\Query.fs" />
     <None Include="TSQL\RoutineReturns.sql" />
     <None Include="TSQL\RoutinesBySchema.sql" />
@@ -68,6 +70,7 @@
     <Content Include="packages.config" />
     <None Include="SQLPlay.sql" />
     <None Include="test.fsx" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Control.AsyncSeq">

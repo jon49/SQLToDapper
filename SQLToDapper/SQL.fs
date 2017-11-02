@@ -66,6 +66,39 @@ module SQL =
         | Variant
         | Xml
 
+        member this.ToCLRType (isNullable : bool) =
+            match this, isNullable with
+            | BigInt, true -> "Int64?"
+            | BigInt, false -> "Int64"
+            | Bit, true -> "Boolean?"
+            | Bit, false -> "Boolean"
+            | Char _, _ | NChar _, _ -> "Char[]"
+            | Date, true | DateTime, true | DateTime2 _, true | SmallDateTime, true -> "DateTime?"
+            | Date, false | DateTime, false | DateTime2 _, false | SmallDateTime, false -> "DateTime"
+            | DateTimeOffset _, true -> "DateTimeOffset?"
+            | DateTimeOffset _, false -> "DateTimeOffset"
+            | Decimal, true | Money, true | SmallMoney, true -> "Decimal?"
+            | Decimal, false | Money, false | SmallMoney, false -> "Decimal"
+            | Float _, true -> "Double?"
+            | Float _, false -> "Double"
+            | Image, _ | Timestamp, _ | Binary _, _ | VarBinary _, _ -> "Byte[]"
+            | Int, true -> "Int32?"
+            | Int, false -> "Int32"
+            | NText, _ | NVarChar _, _ | Text, _ | VarChar _, _ -> "String"
+            | Real, true -> "Single?"
+            | Real, false -> "Single"
+            | SmallInt, true -> "Int16?"
+            | SmallInt, false -> "Int16"
+            | Time _, true -> "TimeSpan?"
+            | Time _, false -> "TimeSpan"
+            | TinyInt, true -> "Byte?"
+            | TinyInt, false -> "Byte"
+            | UniqueIdentifier, true -> "Guid?"
+            | UniqueIdentifier, false -> "Guid"
+            | Variant, _ -> "Object"
+            | Xml, true -> "Xml?"
+            | Xml, false -> "Xml"
+
     type Column =
         {
             IsNullable : bool
@@ -105,7 +138,7 @@ module SQL =
 
 
     type ReturnType =
-        | Columns of Column list
+        | Columns of Column[]
         | Int
 
     type RoutineName = RoutineName of id : string * fullObjectName : FullObjectName

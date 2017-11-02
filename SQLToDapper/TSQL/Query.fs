@@ -144,7 +144,7 @@ module Query =
                         | true -> ReturnType.Int
                         | false ->
                             table
-                            |> Seq.map (fun x ->
+                            |> Array.map (fun x ->
                                     { IsNullable = x.IsNullable
                                       Name = Option.orElse "UnknownColumnName" x.ColumnName
                                       Order = x.ColumnOrder
