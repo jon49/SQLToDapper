@@ -1,16 +1,19 @@
 ﻿
-open System.Text
+type T =
+    | Int of int
+    | SomeSay of string
+    | None
 
-let m = Map.empty<string, string list>
-let sb = ["Hello, "]
-let sb' =
-    "world" :: sb
+let arr = [ Int 1; SomeSay "lala"; None]
 
-let m' =
-    m.Add("1", sb)
-    |> fun x -> x.Add ("1", sb')
+let getTypeName a =
+    let name = sprintf "%O" a
+    match name.IndexOf(' ') with
+    | x when x > -1 -> name.Substring(0, x)
+    | _ -> name
 
-m'.Item "1"
-|> List.rev
-|> String.concat ""
+do
+    arr
+    |> List.map getTypeName
+    |> List.iter (printfn "`%O`")
 

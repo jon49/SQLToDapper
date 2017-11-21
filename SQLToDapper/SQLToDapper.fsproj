@@ -9,10 +9,11 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>SQLToDapper</RootNamespace>
     <AssemblyName>SQLToDapper</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
+    <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
     <Name>SQLToDapper</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -57,9 +58,8 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="SQL.fs" />
+    <Compile Include="Template\IntermediateDescriptor.fs" />
     <Compile Include="Template\DapperWrapper.fs" />
-    <Compile Include="Template\Template.fs" />
-    <Compile Include="Template\Generator.fs" />
     <Compile Include="TSQL\Query.fs" />
     <None Include="TSQL\RoutineReturns.sql" />
     <None Include="TSQL\RoutinesBySchema.sql" />
@@ -74,12 +74,10 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Control.AsyncSeq">
-      <HintPath>..\packages\FSharp.Control.AsyncSeq.1.13\lib\net40\FSharp.Control.AsyncSeq.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\FSharp.Control.AsyncSeq.2.0.16\lib\net45\FSharp.Control.AsyncSeq.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.3.0.2\lib\net40\FSharp.Core.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\FSharp.Core.4.2.3\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.Data.SqlClient">
       <HintPath>..\packages\FSharp.Data.SqlClient.1.8.3-beta5\lib\net40\FSharp.Data.SqlClient.dll</HintPath>

@@ -3,10 +3,18 @@
 module SQL =
 
     open System
+    open SQLToDapper.Utils
 
     type Length =
         | Max
         | Int of int16
+        | NoLengthValue
+
+        member this.GetInt () =
+            match this with
+            | Max -> -1s
+            | Int x -> x
+            | NoLengthValue -> 0s
 
     let asLength =
         function
@@ -22,6 +30,19 @@ module SQL =
         | Five
         | Six
         | Seven
+        | NoPrecisionValue
+
+        member this.GetInt () =
+            match this with
+            | Zero -> 0
+            | One -> 1
+            | Two -> 2
+            | Three -> 3
+            | Four -> 4
+            | Five -> 5
+            | Six -> 6
+            | Seven -> 7
+            | NoPrecisionValue -> -1
 
     let asPrecision x =
         match x with
@@ -99,15 +120,22 @@ module SQL =
             | Xml, true -> "Xml?"
             | Xml, false -> "Xml"
 
-    type Column =
-        {
-            IsNullable : bool
-            Name : string
-            Order : int
-            Type : SQLDbType
-        }
+        member this.GetPrecision () =
+            match this with
+            | DateTime2 x -> x
+            | DateTimeOffset x -> x
+            | Time x -> x
+            | _ -> NoPrecisionValue
 
-//    type UDTColumn =
+        member this.GetLength () =
+            match this with
+            | Binary x | Char x | Float x -> x | NChar x -> x | NVarChar x | VarBinary x | VarChar x -> x
+            | _ -> NoLengthValue
+
+    let getUdtClrType schemaName objectName =
+        sprintf "%s_%s[]" (String.capitalize schemaName) (String.capitalize objectName)
+
+//    type Column =
 //        {
 //            IsNullable : bool
 //            Name : string
@@ -115,37 +143,45 @@ module SQL =
 //            Type : SQLDbType
 //        }
 
-    type SimpleParameter =
-        {
-            Name : string
-            Order : int
-            Type : SQLDbType
-        }
+////    type UDTColumn =
+////        {
+////            IsNullable : bool
+////            Name : string
+////            Order : int
+////            Type : SQLDbType
+////        }
 
-    type SchemaName = SchemaName of string
-    type ObjectName = ObjectName of string
-    type FullObjectName = FullObjectName of SchemaName * ObjectName
+//    type SimpleParameter =
+//        {
+//            Name : string
+//            Order : int
+//            Type : SQLDbType
+//        }
 
-    type UDT =
-        {
-            UDTColumns : Column seq
-            Name : FullObjectName
-        }
+//    type SchemaName = SchemaName of string
+//    type ObjectName = ObjectName of string
+//    type FullObjectName = FullObjectName of SchemaName * ObjectName
 
-    type Parameter =
-        | UDT of ParameterName : string * FullObjectName
-        | SimpleParameter of SimpleParameter
+//    type UDT =
+//        {
+//            UDTColumns : Column seq
+//            Name : FullObjectName
+//        }
+
+//    type Parameter =
+//        | UDT of ParameterName : string * FullObjectName
+//        | SimpleParameter of SimpleParameter
 
 
-    type ReturnType =
-        | Columns of Column[]
-        | Int
+//    type ReturnType =
+//        | Columns of Column[]
+//        | Int
 
-    type RoutineName = RoutineName of id : string * fullObjectName : FullObjectName
+//    type RoutineName = RoutineName of id : string * fullObjectName : FullObjectName
 
-    type Routine =
-        {
-            Name : RoutineName
-            Parameters : Parameter[]
-            ReturnType : ReturnType
-        }
+//    type Routine =
+//        {
+//            Name : RoutineName
+//            Parameters : Parameter[]
+//            ReturnType : ReturnType
+//        }

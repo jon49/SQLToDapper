@@ -2,21 +2,28 @@
 
 module IntermediateDescriptor =
 
+    type SqlProperty =
+        {
+            name: string
+            clrType: string
+            order: int
+            isNullable: bool
+            sqlDbType: string
+            precision: int
+            length: int16
+        }
+
     type Property =
         {
             name: string
-            ``type``: string
+            clrType: string
             order: int
             isNullable: bool
         }
 
     type MethodReturnSimple = string
 
-    type MethodReturnTable =
-        {
-            objectName: string
-            properties: Property list
-        }
+    type MethodReturnTable = Property list
 
     type MethodReturn =
         | MethodReturnSimple of MethodReturnSimple
@@ -25,7 +32,7 @@ module IntermediateDescriptor =
     type ReturnType =
         {
             methodIDs: int list
-            returnTypes: MethodReturn
+            returnType: MethodReturn
         }
 
     type UserDefinedType =
@@ -33,7 +40,7 @@ module IntermediateDescriptor =
             id: int
             schema: string
             name: string
-            properties: Property list
+            properties: SqlProperty list
         }
 
     type Parameter =
@@ -41,8 +48,9 @@ module IntermediateDescriptor =
             /// Only used for UDT types
             id: int option
             name: string
-            ``type``: string
-            maxLength: int
+            clrType: string
+            order: int
+            maxLength: int16
         }
 
     type MethodSignature =
@@ -64,9 +72,9 @@ module IntermediateDescriptor =
             /// Schema name
             name: string
             /// Stored procedures to explicitly include. Will not include other stored procedures
-            ``include``: string list option
+            ``include``: string list
             /// Stored procedures to to exclude. If include has values this will be ingored.
-            exclude: string list option
+            exclude: string list
         }
 
     type Intermediate =

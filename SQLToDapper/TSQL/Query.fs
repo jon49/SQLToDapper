@@ -6,10 +6,11 @@ module Query =
     open FSharpx.Control
     open System.Data.SqlClient
     open SQLToDapper.SQL
+    open SQLToDapper.IntermediateDescriptor
     open SQLToDapper.Utils
 
     let getSQLDbType (x : string option) length precision =
-        let x = Option.orElse "UnknownColumnType" x
+        let x = Option.defaultValue "UnknownColumnType" x
         match x.ToLower (), length, precision with
         | "bigint", _, precision -> BigInt
         | "binary", len, precision -> Binary len
@@ -43,6 +44,8 @@ module Query =
 //        | "geography", _, _ | "geometry", _, _ | "hierarchyid", _, _ | "sysname", _, _ -> failwith "geography, geometry, hierarchyid, and sysname are unsupported data types by SqlDbType - see https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-data-type-mappings for supported parameters."
         | x, _, _ -> failwithf "'%s' is an unsupported type by SqlDbType see https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-data-type-mappings for supported types" x
 
+    let unknown = Option.defaultValue "unknown"
+
     [<Literal>]
     let ConnectionString =
         "Data Source=.;Initial Catalog=SQLToDapper;Integrated Security=True;MultipleActiveResultSets=true;"
@@ -70,7 +73,7 @@ module Query =
         use db = new SqlCommandProvider<RoutinesBySchema.Text, ConnectionString>(conn)
         db.AsyncExecute(SchemaName = schemaName)
 
-    let generateDapperBySchemas (schemas : string[]) (conn : SqlConnection) =
+    let generateDapperBySchemas schemas (conn : SqlConnection) =
         async {
             let! routines' =
                 schemas
@@ -106,54 +109,91 @@ module Query =
                 |> Array.map (fun xs ->
                     let xs = xs |> Seq.toArray
                     let head = xs.[0]
-                    let fullName = FullObjectName (SchemaName (Option.orElse "Unknown" head.UDTSchemaName), ObjectName head.UDTName)
                     let columns =
                         xs
                         |> Seq.map (fun x ->
-                            { IsNullable = Option.orElse true x.IsNullable
-                              Name = Option.orElse "UnknownColumnName" x.ColumnName
-                              Order = x.ColumnOrder
-                              Type = getSQLDbType (Some x.ColumnType) (asLength x.MaxLength) (asPrecision x.Precision) } )
-                    { UDTColumns = columns
-                      Name = fullName } )
+                            let sqlDbType = getSQLDbType (Some x.ColumnType) (asLength x.MaxLength) (asPrecision x.Precision)
+                            let isNullable = Option.defaultValue true x.IsNullable
+                            { name = unknown x.ColumnName
+                              clrType = sqlDbType.ToCLRType(isNullable)
+                              order = x.ColumnOrder
+                              isNullable = isNullable
+                              sqlDbType = T.getTypeName sqlDbType
+                              precision = sqlDbType.GetPrecision().GetInt()
+                              length = sqlDbType.GetLength().GetInt() } )
+                        |> Seq.toList
+                    { id = head.ID
+                      schema = unknown head.UDTSchemaName
+                      name = head.UDTName
+                      properties = columns } )
+                |> Array.toList
 
-            let routineList =
+            let routinesSignatures =
                 routines
                 |> Array.mapi (fun idx x -> 
-                    let name =
-                        FullObjectName (
-                            SchemaName <| Option.orElse "" x.SchemaName,
-                            ObjectName <| Option.orElse "" x.RoutineName )
+                    let objectName = unknown x.RoutineName
+                    let objectID = x.RoutineID
 
-                    let parameters =
+                    let param =
                         routineParameters.[idx]
                         |> Seq.map (fun x ->
-                            let paramName = Option.orElse "UnknowParameterName" x.ParameterName
+                            let paramName = unknown x.ParameterName
                             match x.UDTName with
-                            | Some udt -> UDT (paramName, FullObjectName (SchemaName <| Option.orElse "SchemaWithNoName?" x.UDTSchemaName, ObjectName udt ))
+                            | Some udt ->
+                                let schemaName = unknown x.UDTSchemaName
+                                let udtName = unknown x.UDTName
+                                { id = x.UDTID
+                                  name = paramName
+                                  clrType = getUdtClrType schemaName udtName
+                                  order = x.ParameterOrder
+                                  maxLength = x.MaxLength }
                             | None ->
-                                SimpleParameter
-                                    { Name = paramName
-                                      Order = x.ParameterOrder
-                                      Type = getSQLDbType x.SysColumnType (asLength x.MaxLength) (asPrecision x.Precision) } )
-                        |> Seq.toArray
+                                let sqlDbType = getSQLDbType (x.SysColumnType) (asLength x.MaxLength) (asPrecision x.Precision)
+                                { id = None
+                                  name = paramName
+                                  clrType =  sqlDbType.ToCLRType(true)
+                                  order = x.ParameterOrder
+                                  maxLength = x.MaxLength } )
+                        |> Seq.toList
 
-                    let returnTypes =
-                        let table = routineReturns.[idx]
+                    { id = objectID
+                      name = objectName
+                      parameters = param } )
+                |> Array.toList
+
+            let routinesReturnTypes =
+                routines
+                |> Array.fold (fun (idx, acc: Map<MethodReturn, int list>) x ->
+                    let objectID = x.RoutineID
+                    let table = routineReturns.[idx]
+                    let r : MethodReturn =
                         match (Seq.isEmpty table) with
-                        | true -> ReturnType.Int
+                        | true -> MethodReturnSimple "int"
                         | false ->
-                            table
-                            |> Array.map (fun x ->
-                                    { IsNullable = x.IsNullable
-                                      Name = Option.orElse "UnknownColumnName" x.ColumnName
-                                      Order = x.ColumnOrder
-                                      Type = getSQLDbType (Some x.ColumnType) (asLength x.MaxLength) (asPrecision x.Precision) } )
-                            |> ReturnType.Columns
-                        
-                    { Name = RoutineName (string x.RoutineID, name)
-                      Parameters = parameters
-                      ReturnType = returnTypes } )
+                            MethodReturnTable (
+                                  table
+                                  |> Seq.map (fun x ->
+                                      let sqlDbType = getSQLDbType (Some x.ColumnType) (asLength x.MaxLength) (asPrecision x.Precision)
+                                      { name = unknown x.ColumnName
+                                        clrType = sqlDbType.ToCLRType(x.IsNullable)
+                                        order = x.ColumnOrder
+                                        isNullable = x.IsNullable } )
+                                  |> Seq.toList )
+                    let acc' =
+                        match acc.TryFind r with
+                        | Some x ->
+                            let ids = acc.Item r
+                            acc.Add (r, objectID :: ids)
+                        | None -> acc.Add (r, [ objectID ])
+                    idx + 1, acc'
+                    ) (0, Map.empty<MethodReturn, int list>)
+                |> snd
+                |> Map.toList
+                |> List.map (fun (methodReturn, ids) ->
+                    { methodIDs = ids
+                      returnType = methodReturn } )
 
-            return routineList, udtTypes
+            return { methodSignatures = routinesSignatures
+                     userDefinedTypes = udtTypes
+                     returnTypes = routinesReturnTypes }
         }

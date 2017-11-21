@@ -5,13 +5,14 @@ open System
 open System.Data.SqlClient
 open SQLToDapper
 open SQLToDapper.SQLServer
+open SQLToDapper.IntermediateDescriptor
 
 [<EntryPoint>]
 let main argv = 
 //    printfn "%A" argv
     use conn = new SqlConnection("Data Source=.;Initial Catalog=SymptomChecker;Integrated Security=True;MultipleActiveResultSets=true;")
     conn.Open ()
-    Query.generateDapperBySchemas [| "doh"; "client" |] conn
+    Query.generateDapperBySchemas [| "doh"; "client" |]  conn
     |> Async.RunSynchronously
     |> printfn "%A"
     Console.ReadLine () |> ignore
