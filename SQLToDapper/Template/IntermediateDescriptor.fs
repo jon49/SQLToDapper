@@ -29,11 +29,16 @@ module IntermediateDescriptor =
         | MethodReturnSimple of MethodReturnSimple
         | MethodReturnTable of MethodReturnTable
 
-    type ReturnType =
-        {
-            methodIDs: int list
-            returnType: MethodReturn
-        }
+    /// Object IDs, return name
+    type ReturnTypeByIDs = Map<int, string * MethodReturn>
+
+    /// MethodReturn, name * Object IDs
+    type ReturnType = Map<MethodReturn, string * int list>
+        //{
+        //    name: string
+        //    methodIDs: int list
+        //    returnType: MethodReturn
+        //}
 
     type UserDefinedType =
         {
@@ -60,11 +65,20 @@ module IntermediateDescriptor =
             parameters: Parameter list
         }
 
+    /// objectID, schemaName * schemaID
+    type ObjectToSchema = Map<int, string * int>
+        //{
+        //    schemaID: int
+        //    schemaName: string
+        //    objectIDs: int list
+        //}
+
     type ClassDescription =
         {
             methodSignatures: MethodSignature list
             userDefinedTypes: UserDefinedType list
-            returnTypes: ReturnType list
+            returnTypes: ReturnType * ReturnTypeByIDs
+            schemaObjects: ObjectToSchema
         }
 
     type Schema =

@@ -14,6 +14,7 @@ let main argv =
     conn.Open ()
     Query.generateDapperBySchemas [| "doh"; "client" |]  conn
     |> Async.RunSynchronously
+    |> Code.generate 
     |> printfn "%A"
     Console.ReadLine () |> ignore
     0 // return an integer exit code

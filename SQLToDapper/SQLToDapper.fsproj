@@ -60,7 +60,9 @@
     <Compile Include="SQL.fs" />
     <Compile Include="Template\IntermediateDescriptor.fs" />
     <Compile Include="Template\DapperWrapper.fs" />
+    <Compile Include="Template\ReturnGenerator.fs" />
     <Compile Include="Template\UdtGenerator.fs" />
+    <Compile Include="Template\MethodGenerator.fs" />
     <Compile Include="Template\CodeGenerator.fs" />
     <Compile Include="TSQL\Query.fs" />
     <None Include="TSQL\RoutineReturns.sql" />

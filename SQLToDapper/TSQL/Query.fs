@@ -161,9 +161,9 @@ module Query =
                       parameters = param } )
                 |> Array.toList
 
-            let routinesReturnTypes =
+            let routinesReturnTypes : ReturnType =
                 routines
-                |> Array.fold (fun (idx, acc: Map<MethodReturn, int list>) x ->
+                |> Array.fold (fun (idx, acc: Map<MethodReturn, string * int list>) x ->
                     let objectID = x.RoutineID
                     let table = routineReturns.[idx]
                     let r : MethodReturn =
@@ -182,18 +182,27 @@ module Query =
                     let acc' =
                         match acc.TryFind r with
                         | Some x ->
-                            let ids = acc.Item r
-                            acc.Add (r, objectID :: ids)
-                        | None -> acc.Add (r, [ objectID ])
+                            let (name, ids) = acc.Item r
+                            acc.Add (r, (name, objectID :: ids))
+                        | None -> acc.Add (r, ("Return_"+ string idx, [ objectID ]))
                     idx + 1, acc'
-                    ) (0, Map.empty<MethodReturn, int list>)
+                    ) (0, Map.empty<MethodReturn, string * int list>)
                 |> snd
-                |> Map.toList
-                |> List.map (fun (methodReturn, ids) ->
-                    { methodIDs = ids
-                      returnType = methodReturn } )
+
+            let returnTypesByIDs =
+                routinesReturnTypes
+                |> Map.fold (fun acc methodReturn (name, ids) ->
+                    ids
+                    |> List.fold (fun (acc : Map<int, string * MethodReturn>) id ->
+                        acc.Add (id, (name, methodReturn)) ) acc) (Map.empty<int, string * MethodReturn>)
+
+            let so : ObjectToSchema = Map.empty<int, string * int>
+            let schemaObjects =
+                routines
+                |> Array.fold (fun (acc : ObjectToSchema) x -> acc.Add (x.RoutineID, (unknown x.SchemaName, x.SchemaID)) ) so
 
             return { methodSignatures = routinesSignatures
                      userDefinedTypes = udtTypes
-                     returnTypes = routinesReturnTypes }
+                     returnTypes = routinesReturnTypes, returnTypesByIDs
+                     schemaObjects = schemaObjects }
         }
